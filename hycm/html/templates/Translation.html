@@ -1,0 +1,40 @@
+<div class="input-group filter">
+    <scriptr-autocomplete
+                          id="translationFilter"                
+                          placeholder="Filter by page name"
+                          pause="400"
+                          class=""
+                          search-fields="page"
+                          title-field="page"
+                          description-field="type"                
+                          minlength="0"
+                          text-no-results="No results"                
+                          text-searching="Searching..."
+                          transport="https"
+                          api="hycm/api/getTranslations"
+                          on-format-data="vm.onTranslationFilterData"
+                          selected-object="vm.onTranslationfilterSet"   
+                          input-class="form-control form-control-small">
+    </scriptr-autocomplete>
+</div>
+<scriptr-grid columns-definition='vm.listCols' 
+              api='hycm/api/getTranslations'
+              enable-delete-row='true'
+              pagination="true"
+              row-model-type='infinite'
+              enable-add-row='true'
+              cell-editable='true'
+              suppress-filter='true'
+              row-height="30"
+              grid-height='calc(100vh - 146px)'
+              enable-client-side-filter='true'
+              enable-col-resize="true"
+              default-cell-renderer="vm.defaultCellRenderer" 
+              enable-server-side-filter='true' 
+              enable-client-side-sorting='true'
+              enable-server-side-sorting='true'
+              row-model-selection='multiple'
+              pagination-page-size='50'
+              transport='https'>
+</scriptr-grid>
+
