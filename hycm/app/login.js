@@ -1,7 +1,7 @@
 var login = {
-   redirectTarget: "/hycm/index.html",
+   redirectTarget: "/index.html",
    expiry:1,
-   anonymousToken:"UEYzNUVERTI0Qw=="
+   anonymousToken:"V0ZENDk5RERCMw=="
 };
 
  

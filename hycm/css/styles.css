@@ -234,6 +234,37 @@ box-shadow: 0 0 2px #fff inset;}
 }
 
 .filter {
-    margin: 14px;
-    margin-top: 50px;
+    margin-top: 5px;
+}
+
+.appname {
+    margin-left: -58px;
+}
+
+.done {
+    background-color: #269900;
+    border: none;
+    color: white;
+    padding: 0px 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 13px;
+    width: 100px;
+    margin: 0px 0px; 
+    cursor: pointer;
+}
+
+.not-done {
+    background-color: #ff0000;
+    border: none;
+    color: white;
+    padding: 0px 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    width: 100px;
+    margin: 0px 0px;
+    cursor: pointer;
 }

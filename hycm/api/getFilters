@@ -1,6 +1,7 @@
 var log = require("log");
 log.setLevel("INFO");
 var documents = require("document");
+
 var params = {};
 if(request.body != null){
     params = request.body;
@@ -28,7 +29,6 @@ var sortingColumnName = params.sortingColumnName;
 var filterColumnName = params.filterColumnName;
 var action = params.action;
 var user = params.user;
-var criteria = params.criteria;
 
 var results;
 
@@ -39,52 +39,44 @@ if(params.action){
 if(params.file){
     delete params.file;
 }
-var userGroup = null;
-if(params.userGroup){
-    userGroup = params.userGroup;
-    if(typeof userGroup == "string") userGroup = [userGroup];
-}
-var isTranslator = false;
-if(userGroup != null && typeof userGroup != "undefined"){
-    for(var x = 0; x <= userGroup.length; x++){
-        if(userGroup[x] == "translator"){
-            isTranslator = true;
-            break;
-        }
-    } 
-}
+log.info("*********** Request ****************")
 if(action){
     var fieldsToSave = params.rows;  
     if(action == "add"){
         log.info(JSON.stringify(fieldsToSave))
-        fieldsToSave["formType"] = "translations"; 
-        var fieldsToSaveResult = documents.save(fieldsToSave); 
-        if(fieldsToSaveResult.metadata.status == "failure") {
-            return fieldsToSaveResult.metadata;
-        }else{
-            return  {status : "success"}
-        }
-    }else if(action == "import"){
-        for(var i = 0; i < fieldsToSave.length; i++){
-            fieldsToSave[i]["formType"] = "translations"; 
-            fieldsToSave[i]["translationStatus"] = "Done"; 
-            fieldsToSave[i]["implemented"] = "Yes"; 
-            if(user){
-                fieldsToSave[i]["user"] = user; 
+        if(Array.isArray(fieldsToSave)){
+            for(var i = 0; i < fieldsToSave.length; i++){
+                fieldsToSave[i]["formType"] = "filters"; 
+                if(user){
+                    fieldsToSave[i]["user"] = user; 
+                }
+                var errorResults = documents.save(fieldsToSave[i]);
+                if(errorResults.metadata.status == "failure") {
+                    return errorResults.metadata;
+                }
             }
-            var errorResults = documents.save(fieldsToSave[i]);
             if(errorResults.metadata.status == "failure") {
                 return errorResults.metadata;
+            }else{
+                return  {status : "success"}
+            }
+        }else{
+            fieldsToSave["formType"] = "filters"; 
+            if(user){
+                fieldsToSave["user"] = user; 
+            }
+            var fieldsToSaveResult = documents.save(fieldsToSave); 
+            if(fieldsToSaveResult.metadata.status == "failure") {
+                return fieldsToSaveResult.metadata;
+            }else{
+                return  {status : "success"}
             }
         }
-        if(errorResults.metadata.status == "failure") {
-            return errorResults.metadata;
-        }else{
-            return  {status : "success"}
-        }
+
     }else if(action == "edit"){
-        log.info(JSON.stringify(fieldsToSave));
-        //   return fieldsToSave
+        if(user){
+            fieldsToSave["user"] = user; 
+        }
         var fieldsToSaveResult = documents.save(fieldsToSave);
         if(fieldsToSaveResult.metadata.status == "failure") {
             return fieldsToSaveResult.metadata;
@@ -104,25 +96,16 @@ if(action){
     var queryParams = {};
     if(sortType == null) sortType = "string"
     var fieldsParams = "*";
-    var queryString = 'formType = "translations"';
+    var queryString = 'formType = "filters"';
     var sortString = (sortingColumnName && sortingColumnName != "" && sortingColumnName != "undefined") ? sortingColumnName+"<"+sortType+":"+sort+">" : null;
 
     queryParams["count"] = "true";
     queryParams["query"] =  queryString;
     queryParams["fields"] =  fieldsParams;
 
-    if(isTranslator){
-        queryParams["query"] += ' and translationStatus = "Not Done"';
-    }else{
-        if(queryFilter){
-            if(queryFilter == "Done"){
-                var filterQuery = ' and (translationStatus = "Done" or translationStatus is null)';
-                queryParams["query"] += filterQuery;
-            }else{
-                var filterQuery = (filterColumnName == null) ? " and (page like \"" +queryFilter+ "%\" or translationStatus like \"" +queryFilter+ "%\" or type like \"" +queryFilter+ "%\" or implemented like \"" +queryFilter+ "%\")" : "and ("+filterColumnName+"<"+sortType+">" + " like \"" +queryFilter+ "%\")";
-                queryParams["query"] += filterQuery;
-            } 
-        }
+    if(queryFilter){
+        var filterQuery = (filterColumnName == null)? " and (page like \"" +queryFilter+ "%\" or en like \"" +queryFilter+ "%\" or it like \"" +queryFilter+ "%\" or ar like \"" +queryFilter+ "%\")" : "and ("+filterColumnName+"<"+sortType+">" + " like \"" +queryFilter+ "%\")";
+        queryParams["query"] += filterQuery;
     }
 
     if(sortString){
